@@ -28,6 +28,7 @@
   opacity: 0.9;
   max-width: 600px;
   margin: 0 auto;
+  color: white;
 }
 
 .pricing-cards {
@@ -216,6 +217,7 @@
 .pricing-footer p {
   margin: 0.5rem 0;
   font-size: 1rem;
+  color: white;
 }
 
 /* Responsive Design */

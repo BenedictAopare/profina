@@ -140,7 +140,7 @@ const trainingData = [
 // OpenRouter API service
 const OPENROUTER_API_URL = import.meta.env.VITE_OPENROUTER_API_URL;
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
-const AI_MODEL = import.meta.env.VITE_AI_MODEL || 'deepseek/deepseek-chat-v3.1:free';
+const AI_MODEL = import.meta.env.VITE_AI_MODEL || 'meta-llama/llama-3.3-8b-instruct:free';
 
 // AI-powered text enhancement using OpenRouter (only for 'suggest' action)
 export const enhanceText = async (text, action = 'improve') => {
@@ -152,7 +152,7 @@ export const enhanceText = async (text, action = 'improve') => {
     };
   }
   
-  // For 'suggest' action, use DeepSeek API
+  // For 'suggest' action, use Llama 3 API
   if (action === 'suggest') {
     try {
       const prompt = getPromptForAction(text, action);
@@ -217,16 +217,14 @@ export const enhanceText = async (text, action = 'improve') => {
 // Generate resume summary using OpenRouter
 export const generateResumeSummary = async (resumeData) => {
   try {
-    const prompt = `Create a professional summary for a resume based on the following information:
+    const prompt = `Based on the following resume information, write a compelling professional summary (3-4 sentences) that highlights the candidate's key strengths and experience. Do not include any preamble like "Here is a professional summary" - just provide the summary directly:
     
     Name: ${resumeData.name || 'Not provided'}
     Title: ${resumeData.title || 'Not provided'}
     Summary: ${resumeData.summary || 'Not provided'}
-    Experience: ${resumeData.experience?.map(exp => `${exp.title} at ${exp.company} - ${exp.description}`).join(', ') || 'None'}
-    Education: ${resumeData.education?.map(edu => `${edu.degree} from ${edu.school}`).join(', ') || 'None'}
-    Skills: ${resumeData.skills?.join(', ') || 'None'}
-    
-    Create a compelling 3-4 sentence professional summary that highlights the candidate's key strengths and experience.`;
+    Experience: ${resumeData.experience?.map(exp => `${exp.position} at ${exp.company} - ${exp.description}`).join(', ') || 'None'}
+    Education: ${resumeData.education?.map(edu => `${edu.degree} from ${edu.institution}`).join(', ') || 'None'}
+    Skills: ${resumeData.skills?.join(', ') || 'None'}`;
 
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',

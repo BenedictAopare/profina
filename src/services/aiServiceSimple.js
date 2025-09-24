@@ -4,7 +4,7 @@
 // OpenRouter API service
 const OPENROUTER_API_URL = import.meta.env.VITE_OPENROUTER_API_URL;
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
-const AI_MODEL = import.meta.env.VITE_AI_MODEL || 'deepseek/deepseek-chat-v3.1:free';
+const AI_MODEL = import.meta.env.VITE_AI_MODEL || 'meta-llama/llama-3.3-8b-instruct:free';
 
 // Simple word replacement suggestions
 const wordReplacements = {
@@ -39,7 +39,7 @@ export const enhanceText = async (text, action = 'improve') => {
     };
   }
   
-  // For 'suggest' action, use DeepSeek API
+  // For 'suggest' action, use Llama 3 API
   if (action === 'suggest') {
     try {
       const prompt = getPromptForAction(text, action);
@@ -192,15 +192,13 @@ const getPromptForAction = (text, action) => {
 // Generate resume summary using AI
 export const generateResumeSummary = async (resumeData) => {
   try {
-    const prompt = `Based on the following resume information, write a compelling professional summary (2-3 sentences):
+    const prompt = `Based on the following resume information, write a compelling professional summary (2-3 sentences) that highlights the candidate's strengths and value proposition. Do not include any preamble like "Here is a professional summary" - just provide the summary directly:
     
     Name: ${resumeData.name || 'N/A'}
     Title: ${resumeData.title || 'N/A'}
     Experience: ${resumeData.experience?.map(exp => `${exp.position} at ${exp.company} (${exp.duration})`).join(', ') || 'N/A'}
     Skills: ${resumeData.skills?.join(', ') || 'N/A'}
-    Education: ${resumeData.education?.map(edu => `${edu.degree} from ${edu.institution}`).join(', ') || 'N/A'}
-    
-    Write a professional summary that highlights the candidate's strengths and value proposition.`;
+    Education: ${resumeData.education?.map(edu => `${edu.degree} from ${edu.institution}`).join(', ') || 'N/A'}`;
 
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',

@@ -47,38 +47,64 @@ const ResumeForm = ({ data, onSave, onNext }) => {
   };
 
   const handleAIAssist = async (field, action = "improve") => {
-    if (!formData[field] || formData[field].trim() === "") return;
+    // Handle nested fields like experience.0.description or projects.1.description
+    let currentValue = "";
+    if (field.includes(".")) {
+      const parts = field.split(".");
+      if (parts[0] === "experience" || parts[0] === "projects") {
+        const arrayIndex = parseInt(parts[1]);
+        const subField = parts[2];
+        currentValue = formData[parts[0]][arrayIndex][subField] || "";
+      }
+    } else {
+      currentValue = formData[field] || "";
+    }
+
+    if (!currentValue || currentValue.trim() === "") return;
 
     setAiLoading(true);
     setActiveField(field);
 
     try {
-      const result = await enhanceText(formData[field], action);
+      const result = await enhanceText(currentValue, action);
       if (result.success) {
-        handleInputChange(field, result.enhancedText);
+        updateFieldValue(field, result.enhancedText);
       } else if (result.fallback) {
-        handleInputChange(field, result.fallback);
+        updateFieldValue(field, result.fallback);
       } else {
         // Fallback to simple AI service
-        const simpleResult = await simpleEnhanceText(formData[field], action);
+        const simpleResult = await simpleEnhanceText(currentValue, action);
         if (simpleResult.success) {
-          handleInputChange(field, simpleResult.enhancedText);
+          updateFieldValue(field, simpleResult.enhancedText);
         } else if (simpleResult.fallback) {
-          handleInputChange(field, simpleResult.fallback);
+          updateFieldValue(field, simpleResult.fallback);
         }
       }
     } catch (error) {
       console.error("AI assist error:", error);
       // Final fallback to simple text enhancement
-      const simpleResult = await simpleEnhanceText(formData[field], action);
+      const simpleResult = await simpleEnhanceText(currentValue, action);
       if (simpleResult.success) {
-        handleInputChange(field, simpleResult.enhancedText);
+        updateFieldValue(field, simpleResult.enhancedText);
       } else if (simpleResult.fallback) {
-        handleInputChange(field, simpleResult.fallback);
+        updateFieldValue(field, simpleResult.fallback);
       }
     } finally {
       setAiLoading(false);
       setActiveField(null);
+    }
+  };
+
+  const updateFieldValue = (field, value) => {
+    if (field.includes(".")) {
+      const parts = field.split(".");
+      if (parts[0] === "experience" || parts[0] === "projects") {
+        const arrayIndex = parseInt(parts[1]);
+        const subField = parts[2];
+        handleArrayChange(parts[0], arrayIndex, subField, value);
+      }
+    } else {
+      handleInputChange(field, value);
     }
   };
 
@@ -373,6 +399,12 @@ const ResumeForm = ({ data, onSave, onNext }) => {
                           >
                             Expand
                           </AIButton>
+                          <AIButton
+                            field={`experience.${index}.description`}
+                            action="shorten"
+                          >
+                            Shorten
+                          </AIButton>
                         </div>
                       </div>
                     </div>
@@ -614,6 +646,12 @@ const ResumeForm = ({ data, onSave, onNext }) => {
                           action="expand"
                         >
                           Expand
+                        </AIButton>
+                        <AIButton
+                          field={`projects.${index}.description`}
+                          action="shorten"
+                        >
+                          Shorten
                         </AIButton>
                       </div>
                     </div>
