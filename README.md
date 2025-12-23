@@ -205,3 +205,5 @@ For support, email [your-contact-email@example.com](mailto:your-contact-email@ex
 - **React** for the frontend framework
 - **Tiptap** for rich text editing
 - **React-PDF** for PDF generation
+## Contributors
+- Benedict Aopare <aoparebenedict1@gmail.com>
